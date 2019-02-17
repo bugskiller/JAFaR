@@ -35,8 +35,8 @@ class RX5808
     uint16_t getMaxPos();
     uint16_t getMinPos();
     void scan();
-    void init();
-    void calibration();
+    void init(bool isChanB);
+    void calibration(bool isChanB);
     void setFreq(uint32_t freq);
     void abortScan();
     uint16_t getfrom_top8(uint8_t index);

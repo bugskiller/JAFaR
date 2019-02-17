@@ -166,13 +166,22 @@ uint16_t RX5808::getCurrentRSSI() {
   return _readRSSI();
 }
 
-void RX5808::init() {
+void RX5808::init(bool isChanB) {
   pinMode (_csPin, OUTPUT);
   pinMode (_rssiPin, INPUT);
 
-  rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_L)));
-  rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_L)));
-
+  if (!isChanB)
+  {
+    rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_L)));
+    rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_L)));
+  }
+#ifdef USE_DUAL_CAL
+  else
+  {
+    rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_B_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_B_L)));
+    rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_B_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_B_L)));
+  }
+#endif
   /*
     digitalWrite(_csPin, LOW);
     SPI.transfer(0x10);
@@ -182,9 +191,10 @@ void RX5808::init() {
     digitalWrite(_csPin, HIGH);
   */
   if (abs(rssi_max - rssi_min) > 300 || abs(rssi_max - rssi_min) < 50)
-    calibration();
+    calibration(isChanB);
 
-  scan();
+  if (!isChanB)
+     scan();
 }
 
 //do a complete scan 
@@ -206,7 +216,7 @@ void RX5808::scan() {
 
 void RX5808::_wait_rssi() {
   // 30ms will to do a 32 channels scan in 1 second
-#define MIN_TUNE_TIME 30
+#define MIN_TUNE_TIME 40
   delay(MIN_TUNE_TIME);
 }
 
@@ -241,7 +251,7 @@ void RX5808::setRSSIMinMax() {
 }
 
 //compute the min and max RSSI value and store the values in EEPROM
-void RX5808::calibration() {
+void RX5808::calibration(bool isChanB) {
   int i = 0, j = 0;
   uint16_t  rssi_setup_min = 1024, minValue = 1024;
   uint16_t  rssi_setup_max = 0, maxValue = 0;
@@ -260,16 +270,32 @@ void RX5808::calibration() {
     rssi_setup_max = max(rssi_setup_max, maxValue); //?maxValue:rssi_setup_max;
   }
 
-  // save 16 bit
-  EEPROM.write(EEPROM_ADR_RSSI_MIN_L, (rssi_setup_min & 0xff));
-  EEPROM.write(EEPROM_ADR_RSSI_MIN_H, (rssi_setup_min >> 8));
-  // save 16 bit
-  EEPROM.write(EEPROM_ADR_RSSI_MAX_L, (rssi_setup_max & 0xff));
-  EEPROM.write(EEPROM_ADR_RSSI_MAX_H, (rssi_setup_max >> 8));
-
-  rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_L)));
-  rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_L)));
-
+  if (!isChanB)
+  {
+    // save 16 bit
+    EEPROM.write(EEPROM_ADR_RSSI_MIN_L, (rssi_setup_min & 0xff));
+    EEPROM.write(EEPROM_ADR_RSSI_MIN_H, (rssi_setup_min >> 8));
+    // save 16 bit
+    EEPROM.write(EEPROM_ADR_RSSI_MAX_L, (rssi_setup_max & 0xff));
+    EEPROM.write(EEPROM_ADR_RSSI_MAX_H, (rssi_setup_max >> 8));
+  
+    rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_L)));
+    rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_L)));
+  }
+#ifdef USE_DUAL_CAL
+  else
+  {
+    // save 16 bit
+    EEPROM.write(EEPROM_ADR_RSSI_MIN_B_L, (rssi_setup_min & 0xff));
+    EEPROM.write(EEPROM_ADR_RSSI_MIN_B_H, (rssi_setup_min >> 8));
+    // save 16 bit
+    EEPROM.write(EEPROM_ADR_RSSI_MAX_B_L, (rssi_setup_max & 0xff));
+    EEPROM.write(EEPROM_ADR_RSSI_MAX_B_H, (rssi_setup_max >> 8));
+  
+    rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_B_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_B_L)));
+    rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_B_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_B_L))); 
+  }
+#endif
 
   // delay(1000);
 

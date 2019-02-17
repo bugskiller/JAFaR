@@ -30,17 +30,24 @@ void osd_init(void) {
   TV.select_font(font6x8);
   TV.printPGM(0, 0, PSTR("JAFaR Project 2.0"));
   TV.printPGM(5,10, PSTR("by MikyM0use"));
-  TV.printPGM(0, 50, PSTR("RSSI MIN"));
-  TV.printPGM(0, 60, PSTR("RSSI MAX"));
-  TV.print(60, 50, rx5808.getRssiMin(), DEC); //RSSI
-  TV.print(60, 60, rx5808.getRssiMax(), DEC); //RSSI
+  TV.printPGM(0, 30, PSTR("RSSI MIN"));
+  TV.printPGM(0, 40, PSTR("RSSI MAX"));
+  TV.print(60, 30, rx5808.getRssiMin(), DEC); //RSSI
+  TV.print(60, 40, rx5808.getRssiMax(), DEC); //RSSI
+
+  #ifdef USE_DUAL_CAL
+  TV.printPGM(0, 50, PSTR("RSSIB MIN"));
+  TV.printPGM(0, 60, PSTR("RSSIB MAX"));
+  TV.print(60, 50, rx5808B.getRssiMin(), DEC); //RSSI
+  TV.print(60, 60, rx5808B.getRssiMax(), DEC); //RSSI
+  #endif
 
   //progress bar
   int i = 0;
   TV.draw_rect(10, 80, D_COL-40, 8,  WHITE); //draw frame
   for (i = 0; i < D_COL-40; i++) {
     TV.draw_rect(10, 80, i, 8, WHITE, WHITE);
-    TV.delay(35); //2s
+    TV.delay(20); //35 2s
   }
 }
 
@@ -80,7 +87,7 @@ void osd_mainmenu(uint8_t menu_pos) {
 
   //entire menu
   TV.printPGM(10, 3 + compute_position(BAND_A_POS) * MENU_Y_SIZE, PSTR("BAND A"));
-  TV.printPGM(10, 3 + compute_position(BAND_B_POS) * MENU_Y_SIZE, PSTR("BAND B"));
+  TV.printPGM(10, 3 + compute_position(BAND_B_POS) * MENU_Y_SIZE, PSTR("CUSTOM"));
   TV.printPGM(10, 3 + compute_position(BAND_E_POS) * MENU_Y_SIZE, PSTR("BAND E"));
   TV.printPGM(10, 3 + compute_position(BAND_F_POS) * MENU_Y_SIZE, PSTR("FATSHARK"));
   TV.printPGM(10, 3 + compute_position(BAND_R1_POS) * MENU_Y_SIZE, PSTR("RACEBAND"));

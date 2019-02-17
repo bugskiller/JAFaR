@@ -52,11 +52,13 @@ void set_and_wait(uint8_t band, uint8_t menu_pos) {
 #endif
 
 #ifdef USE_DIVERSITY
+ #ifndef USE_DUAL_CAL
   //init of the second module
   RX5808 rx5808B(rssiB, SPI_CSB);
   pinMode (rssiB, INPUT);
   pinMode (SPI_CSB, OUTPUT);
   rx5808B.setRSSIMinMax();
+ #endif
 
   rx5808B.setFreq(pgm_read_word_near(channelFreqTable + (8 * band) + menu_pos)); //set the selected freq
   SELECT_B;
@@ -113,13 +115,16 @@ void set_and_wait(uint8_t band, uint8_t menu_pos) {
     delay(4000);
   */
 
+global_max_rssi = max(rx5808.getRssiMax(), rx5808B.getRssiMax());
   //MAIN LOOP - change channel and log
   while (1) {
 #ifdef USE_DIVERSITY
 
+#ifndef USE_DUAL_CAL
     global_max_rssi = max(rx5808.getRssiMax(), rx5808B.getRssiMax());
-
+#endif
     rssi_a = rx5808.getCurrentRSSI();
+#ifndef USE_DUAL_CAL
     if (rssi_a > rx5808.getRssiMax()) { //update to new max if needed
       rx5808.setRssiMax(rssi_a);
       global_max_rssi = max(rx5808.getRssiMax(), rx5808B.getRssiMax());
@@ -127,12 +132,14 @@ void set_and_wait(uint8_t band, uint8_t menu_pos) {
 
     if (rssi_a < rx5808.getRssiMin()) //update to new min is needed
       rx5808.setRssiMin(rssi_a);
+#endif
 
     rssi_a_norm = constrain(rssi_a, rx5808.getRssiMin(), rx5808.getRssiMax());
     rssi_a_norm = map(rssi_a_norm, rx5808.getRssiMin(), rx5808.getRssiMax(), 1, global_max_rssi);
 
     rssi_b = rx5808B.getCurrentRSSI();
 
+#ifndef USE_DUAL_CAL
     if (rssi_b > rx5808B.getRssiMax()) { //this solve a bug when the goggles are powered on with no VTX around
       rx5808B.setRssiMax(rssi_b);
       global_max_rssi = max(rx5808.getRssiMax(), rx5808B.getRssiMax());
@@ -140,7 +147,7 @@ void set_and_wait(uint8_t band, uint8_t menu_pos) {
 
     if (rssi_b < rx5808B.getRssiMin())
       rx5808B.setRssiMin(rssi_b);
-
+#endif
     /*if ((abs(rx5808B.getRssiMax() - rx5808B.getRssiMin()) > 300) || (abs(rx5808B.getRssiMax() - rx5808B.getRssiMin()) < 50)) { //this solve a bug when the goggles are powered on with no VTX around
       rssi_b = 0;
       } else {

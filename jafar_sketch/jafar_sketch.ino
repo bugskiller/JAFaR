@@ -24,6 +24,9 @@
 #include "const.h"
 
 RX5808 rx5808(rssiA, SPI_CSA);
+#ifdef USE_DUAL_CAL
+RX5808 rx5808B(rssiB, SPI_CSB);
+#endif
 
 uint8_t last_post_switch, flag_first_pos,  in_mainmenu, menu_band, menu_pos;
 float timer;
@@ -79,8 +82,13 @@ void setup() {
   pinMode(spiClockPin, OUTPUT);
 
   //RX module init
-  rx5808.init();
+  rx5808.init(false); // false = not channel B
   //rx5808.calibration();
+
+#ifdef USE_DUAL_CAL
+  //init of the second module
+  rx5808B.init(true); // true = is channel B
+#endif
 
 #ifdef USE_OLED
   oled_init();
