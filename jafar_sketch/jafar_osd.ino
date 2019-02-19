@@ -17,8 +17,6 @@
     Copyright © 2016 Michele Martinelli
 */
 
-#ifdef USE_OSD
-
 #include <avr/pgmspace.h>
 
 void osd_init(void) {
@@ -32,15 +30,15 @@ void osd_init(void) {
   TV.printPGM(5,10, PSTR("by MikyM0use"));
   TV.printPGM(0, 30, PSTR("RSSI MIN"));
   TV.printPGM(0, 40, PSTR("RSSI MAX"));
-  TV.print(60, 30, rx5808.getRssiMin(), DEC); //RSSI
-  TV.print(60, 40, rx5808.getRssiMax(), DEC); //RSSI
+  TV.print(60, 30, rx5808A.getRssiMin(), DEC); //RSSI
+  TV.print(60, 40, rx5808A.getRssiMax(), DEC); //RSSI
 
-  #ifdef USE_DUAL_CAL
+#ifdef USE_DIVERSITY
   TV.printPGM(0, 50, PSTR("RSSIB MIN"));
   TV.printPGM(0, 60, PSTR("RSSIB MAX"));
   TV.print(60, 50, rx5808B.getRssiMin(), DEC); //RSSI
   TV.print(60, 60, rx5808B.getRssiMax(), DEC); //RSSI
-  #endif
+#endif // USE_DIVERSITY
 
   //progress bar
   int i = 0;
@@ -60,17 +58,15 @@ void osd_submenu(int8_t menu_pos, uint8_t band) {
   for (i = 0; i < 8; i++) {
     TV.print(10, 3 + i * MENU_Y_SIZE, pgm_read_word_near(channelFreqTable + (8 * band) + i), DEC); //channel name
 
-    TV.print(60, 3 + i * MENU_Y_SIZE, rx5808.getVal(band, i, 100), DEC); //RSSI
+    TV.print(60, 3 + i * MENU_Y_SIZE, rx5808A.getVal(band, i, 100), DEC); //RSSI
     TV.printPGM(78, 3 + i * MENU_Y_SIZE, PSTR("%")); //percentage symbol
   }
 
   TV.draw_rect(9, 2 + menu_pos * MENU_Y_SIZE, 85, 7,  WHITE, INVERT); //current selection
 
-#ifndef STANDALONE
   //timer
   //TV.println(92, 3, (int)timer, DEC);
   osd_display_timer();
-#endif
 
 }
 
@@ -91,32 +87,25 @@ void osd_mainmenu(uint8_t menu_pos) {
   TV.printPGM(10, 3 + compute_position(BAND_E_POS) * MENU_Y_SIZE, PSTR("BAND E"));
   TV.printPGM(10, 3 + compute_position(BAND_F_POS) * MENU_Y_SIZE, PSTR("FATSHARK"));
   TV.printPGM(10, 3 + compute_position(BAND_R1_POS) * MENU_Y_SIZE, PSTR("RACEBAND"));
-#ifdef USE_SCANNER
   TV.printPGM(10, 3 + compute_position(SCANNER_POS) * MENU_Y_SIZE, PSTR("SCANNER"));
-#endif
-#ifdef USE_48CH
-  TV.printPGM(10, 3 + compute_position(BAND_R2_POS) * MENU_Y_SIZE, PSTR("RACE2"));
-#endif
   TV.printPGM(10, 3 + compute_position(AUTOSCAN_POS) * MENU_Y_SIZE, PSTR("AUTOSCAN"));
 
   for (i = 0; i < NUM_BANDS; i++) {
-    TV.println(65, 3 + ((_init_selection + 1 + i) % 8) * MENU_Y_SIZE, rx5808.getMaxValBand(i, 100), DEC); //RSSI
+    TV.println(65, 3 + ((_init_selection + 1 + i) % 8) * MENU_Y_SIZE, rx5808A.getMaxValBand(i, 100), DEC); //RSSI
     TV.printPGM(85, 3 + ((_init_selection + 1 + i) % 8) * MENU_Y_SIZE, PSTR("%")); //% symbol
   }
 
   TV.draw_rect(9, 2 + menu_pos * MENU_Y_SIZE, 85, 7,  WHITE, INVERT); //current selection
 
-#ifndef STANDALONE
   //header and countdown
   //TV.println(92, 3, (int)timer, DEC);
   osd_display_timer();
-#endif
 }
-#ifdef USE_SCANNER
+
 void osd_scanner() {
   uint8_t s_timer = 5;
   while (s_timer-- > 0) {
-    rx5808.scan();
+    rx5808A.scan();
     TV.clear_screen();
     TV.draw_rect(1, 1, 100, 94,  WHITE);
     TV.select_font(font4x6);
@@ -126,8 +115,8 @@ void osd_scanner() {
     TV.select_font(font6x8);
     for (int i = CHANNEL_MIN; i < CHANNEL_MAX; i++) {
       uint8_t channelIndex = pgm_read_byte_near(channelList + i); //retrive the value based on the freq order
-      uint16_t rssi_norm = constrain(rx5808.getRssi(channelIndex), rx5808.getRssiMin(), rx5808.getRssiMax());
-      rssi_norm = map(rssi_norm, rx5808.getRssiMin(), rx5808.getRssiMax(), 0, 70);
+      uint16_t rssi_norm = constrain(rx5808A.getRssi(channelIndex), rx5808A.getRssiMin(), rx5808A.getRssiMax());
+      rssi_norm = map(rssi_norm, rx5808A.getRssiMin(), rx5808A.getRssiMax(), 0, 70);
 
 #define START_OSD_FRAME_Y 80
       TV.draw_rect(10 + 2 * i, START_OSD_FRAME_Y - rssi_norm , 2, rssi_norm, WHITE, WHITE);
@@ -138,22 +127,19 @@ void osd_scanner() {
   }
   s_timer = 9;
 }
-#endif //USE_SCANNER
 
 void osd_autoscan() {
   TV.clear_screen();
   TV.draw_rect(1, 1, 100, 94,  WHITE);
 
-#ifndef STANDALONE
   //header and countdown
   //TV.println(92, 3, (int)timer, DEC); //timer
   osd_display_timer();
-#endif
 
   for (uint8_t i = 0; i < 8; i++) {
-    TV.print(10, 3 + i * MENU_Y_SIZE, pgm_read_word_near(channelFreqTable + rx5808.getfrom_top8(i)), DEC); //channel freq
-    TV.print(45, 3 + i * MENU_Y_SIZE , pgm_read_byte_near(channelNames + rx5808.getfrom_top8(i)), HEX); //channel name
-    TV.print(65, 3 + i * MENU_Y_SIZE, rx5808.getVal(rx5808.getfrom_top8(i), 100), DEC); //RSSI
+    TV.print(10, 3 + i * MENU_Y_SIZE, pgm_read_word_near(channelFreqTable + rx5808A.getfrom_top8(i)), DEC); //channel freq
+    TV.print(45, 3 + i * MENU_Y_SIZE , pgm_read_byte_near(channelNames + rx5808A.getfrom_top8(i)), HEX); //channel name
+    TV.print(65, 3 + i * MENU_Y_SIZE, rx5808A.getVal(rx5808A.getfrom_top8(i), 100), DEC); //RSSI
     TV.printPGM(85, 3 + i * MENU_Y_SIZE, PSTR("%"));
   }
 
@@ -164,10 +150,8 @@ void osd_display_timer() {
   if (timer > 0) {
     int fh = D_ROW ;
     int height = ((long)(timer) * 100) * fh / ((int)TIMER_INIT_VALUE * 100);
-    if (height > 0)
+    if (height > 0) {
       TV.draw_rect(D_COL - 24, fh - height + 1, 4, height, WHITE, WHITE);
+    }
   }
 }
-
-#endif //not USE_OLED
-

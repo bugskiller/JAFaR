@@ -20,48 +20,16 @@ This file is part of Fatshark© goggle rx module project (JAFaR).
 #ifndef const_h
 #define const_h
 
-#define FORCE_FIRST_MENU_ITEM //force always the first menu item (last freq used)
-//#define STANDALONE //NO GOGGLES - TO BE TESTED
-
 //ONLY ONE OF THE FOLLOWING:
 #define USE_DIVERSITY
-#define USE_DUAL_CAL
-//#define USE_OLED
-
-//uncomment this to use the I2C OLED version (PCB 4.1 beta)
-//#define USE_I2C_OLED
-
-//ONLY ONE OF THE FOLLOWING:
-#define USE_48CH
-//#define USE_SCANNER
 
 
 #define CHANNEL_MIN 0
-#ifdef USE_48CH
-#define NUM_BANDS 6
-#define CHANNEL_MAX 48
-#else
 #define NUM_BANDS 5
 #define CHANNEL_MAX 40
-#endif
 
 
-
-//DEBUG STUFF
-//#define DEBUG //to use this: force_first, OLED disabeld, OSD disabled, DEBUG enabled
-//#define ENABLE_RSSILOG
-#define FLIP_SCREEN
-
-#ifndef USE_OLED
-#define USE_OSD //comment this just for debug
-#endif
-
-
-#ifdef STANDALONE
-#define LOOPTIME 100
-#else
 #define LOOPTIME 1000
-#endif
 
 #define JAFARE_DEBOUCE_TIME 180
 
@@ -107,7 +75,6 @@ This file is part of Fatshark© goggle rx module project (JAFaR).
 #define SW_CTRL1 5
 #define SW_CTRL2 6
 
-//#define BUZPIN 0 //digitalWrite(BUZPIN, HIGH);TV.delay(50);digitalWrite(BUZPIN, LOW);pinMode(BUZPIN, OUTPUT); //UP digitalWrite(BUZPIN,LOW);
 #define SELECT_OSD {digitalWrite(SW_CTRL1, HIGH);digitalWrite(SW_CTRL2, HIGH);}
 #define SELECT_A {digitalWrite(SW_CTRL1, LOW);  digitalWrite(SW_CTRL2, HIGH);}
 #define SELECT_B {digitalWrite(SW_CTRL1, HIGH);  digitalWrite(SW_CTRL2, LOW);}
@@ -148,7 +115,6 @@ const uint8_t channelNames[] PROGMEM = {
 #define  BAND_E_POS 3
 #define  BAND_F_POS 4
 #define  BAND_R1_POS 5
-#define  BAND_R2_POS 6
 #define  SCANNER_POS 6
 #define  AUTOSCAN_POS 7
 
@@ -157,5 +123,5 @@ uint8_t _init_selection;
 uint8_t inline compute_position(const uint8_t _pos) {
   return ((_init_selection + _pos) % NUM_MENU_ITEMS);
 }
-#endif
 
+#endif // const_h

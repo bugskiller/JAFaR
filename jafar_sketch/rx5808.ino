@@ -17,10 +17,9 @@
     Copyright © 2016 Michele Martinelli
 */
 
-//#include <Wire.h>
 #include <EEPROM.h>
 #include "rx5808.h"
-#define RSSI_THRESH (scanVec[getMaxPos()]-5) //strong channels are near to the global max
+#define RSSI_THRESH (scanVec[getMaxPos()] - 5) //strong channels are near to the global max
 
 RX5808::RX5808(uint8_t RSSIpin, uint8_t CSpin) {
   _rssiPin = RSSIpin;
@@ -39,7 +38,6 @@ void RX5808::compute_top8(void) {
   memcpy(scanVecTmp, scanVec, sizeof(uint16_t)*CHANNEL_MAX);
 
   for (int8_t i = 7; i > 0; i--) {
-
     uint16_t maxVal = 0, maxPos = 0;
     for (_chan = CHANNEL_MIN; _chan < CHANNEL_MAX; _chan++) {
       if (maxVal < scanVecTmp[_chan]) { //new max
@@ -101,7 +99,6 @@ uint16_t RX5808::getMaxValBand(uint8_t band, uint16_t norm) {
       maxVal = scanVec[_chan];
     }
   }
-
   maxVal = constrain(maxVal, rssi_min, rssi_max);
   return map(maxVal, rssi_min, rssi_max, 0, norm);
 }
@@ -114,7 +111,6 @@ uint16_t RX5808::getMaxPosBand(uint8_t band) {
     if (maxVal < scanVec[_chan]) { //new max
       maxPos = _chan;
       maxVal = scanVec[_chan];
-
     }
   }
   return maxPos;
@@ -128,7 +124,6 @@ uint16_t RX5808::getMinPosBand(uint8_t band) {
     if (minVal > scanVec[_chan]) { //new max
       minPos = _chan;
       minVal = scanVec[_chan];
-
     }
   }
   return minPos;
@@ -142,7 +137,6 @@ uint16_t RX5808::getMaxPos() {
     if (maxVal < scanVec[_chan]) { //new max
       maxPos = _chan;
       maxVal = scanVec[_chan];
-
     }
   }
   return maxPos;
@@ -156,7 +150,6 @@ uint16_t RX5808::getMinPos() {
     if (minVal > scanVec[_chan]) { //new max
       minPos = _chan;
       minVal = scanVec[_chan];
-
     }
   }
   return minPos;
@@ -175,26 +168,19 @@ void RX5808::init(bool isChanB) {
     rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_L)));
     rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_L)));
   }
-#ifdef USE_DUAL_CAL
   else
   {
     rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_B_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_B_L)));
     rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_B_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_B_L)));
   }
-#endif
-  /*
-    digitalWrite(_csPin, LOW);
-    SPI.transfer(0x10);
-    SPI.transfer(0x01);
-    SPI.transfer(0x00);
-    SPI.transfer(0x00);
-    digitalWrite(_csPin, HIGH);
-  */
-  if (abs(rssi_max - rssi_min) > 300 || abs(rssi_max - rssi_min) < 50)
-    calibration(isChanB);
+  
+  if (abs(rssi_max - rssi_min) > 300 || abs(rssi_max - rssi_min) < 50) {
+    calibrate(isChanB);
+  }
 
-  if (!isChanB)
+  if (!isChanB) {
      scan();
+  }
 }
 
 //do a complete scan 
@@ -251,7 +237,7 @@ void RX5808::setRSSIMinMax() {
 }
 
 //compute the min and max RSSI value and store the values in EEPROM
-void RX5808::calibration(bool isChanB) {
+void RX5808::calibrate(bool isChanB) {
   int i = 0, j = 0;
   uint16_t  rssi_setup_min = 1024, minValue = 1024;
   uint16_t  rssi_setup_max = 0, maxValue = 0;
@@ -282,7 +268,6 @@ void RX5808::calibration(bool isChanB) {
     rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_L)));
     rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_L)));
   }
-#ifdef USE_DUAL_CAL
   else
   {
     // save 16 bit
@@ -295,10 +280,7 @@ void RX5808::calibration(bool isChanB) {
     rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_B_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_B_L)));
     rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_B_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_B_L))); 
   }
-#endif
-
-  // delay(1000);
-
+  
   return;
 }
 
@@ -323,8 +305,9 @@ void RX5808::setFreq(uint32_t freq) {
   // Order: A0-3, !R/W, D0-D19
   // A0=0, A1=0, A2=0, A3=1, RW=0, D0-19=0
   uint16_t reg1 = 0x10;
-  for (i = 0; i < 25; i++)
+  for (i = 0; i < 25; i++) {
     serialSendBit((reg1 >> i) & 1);
+  }
 
   // Clock the data in
   serialEnable(HIGH);
@@ -355,8 +338,9 @@ void RX5808::setFreq(uint32_t freq) {
   }
 
   // Remaining D16-D19
-  for (i = 4; i > 0; i--)
+  for (i = 4; i > 0; i--) {
     serialSendBit(LOW);
+  }
 
   // Finished clocking data in
   serialEnable(HIGH);
@@ -379,10 +363,9 @@ void RX5808::serialSendBit(const uint8_t _b) {
   digitalWrite(spiClockPin, LOW);
   delayMicroseconds(1);
 }
+
 void RX5808::serialEnable(const uint8_t _lev) {
   delayMicroseconds(1);
   digitalWrite(_csPin, _lev);
   delayMicroseconds(1);
 }
-
-
