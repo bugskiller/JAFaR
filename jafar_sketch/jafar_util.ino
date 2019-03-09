@@ -68,15 +68,24 @@ void set_and_wait(uint8_t band, uint8_t menu_pos) {
     rssi_b_norm = constrain(rssi_b, rx5808B.getRssiMin(), rx5808B.getRssiMax());
     rssi_b_norm = map(rssi_b_norm, rx5808B.getRssiMin(), rx5808B.getRssiMax(), 1, global_max_rssi);
 
+#ifdef DISABLE_FILTERING
+    
+    int16_t rssi_b_norm_filt  = (rssi_b_norm + prev_rssi_b_norm * 3) / 4;
+    int16_t rssi_a_norm_filt  = (rssi_a_norm + prev_rssi_a_norm * 3) / 4;
+    
+#else // DISABLE_FILTERING
+
     //filter... thanks to A*MORALE!
     //alpha * (current-previous) / 2^10 + previous
     //alpha = dt/(dt+1/(2*PI *fc)) -> (0.0002 / (0.0002 + 1.0 / (2.0 * 3.1416 * 10))) = 01241041672 * 2^11 -> 25
     //dt = 200us
     //fc = 8HZ
-    //floating point conversion 10 bit > shift 2^10 -> 1024
+    //floating point conversion 10 bit > shift 2^10 -> 1024 
 #define ALPHA 25
-    int16_t rssi_b_norm_filt = ((ALPHA * (rssi_b_norm - prev_rssi_b_norm)) / 1024) + prev_rssi_b_norm;
-    int16_t rssi_a_norm_filt = ((ALPHA * (rssi_a_norm - prev_rssi_a_norm)) / 1024) + prev_rssi_a_norm;
+     int16_t rssi_b_norm_filt = ((ALPHA * (rssi_b_norm - prev_rssi_b_norm)) / 1024) + prev_rssi_b_norm;
+     int16_t rssi_a_norm_filt = ((ALPHA * (rssi_a_norm - prev_rssi_a_norm)) / 1024) + prev_rssi_a_norm;
+     
+#endif // DISABLE_FILTERING
     
     prev_rssi_b_norm = rssi_b_norm_filt;
     prev_rssi_a_norm = rssi_a_norm_filt;
