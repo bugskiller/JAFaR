@@ -83,7 +83,7 @@ void osd_mainmenu(uint8_t menu_pos) {
 
   //entire menu
   TV.printPGM(10, 3 + compute_position(BAND_A_POS) * MENU_Y_SIZE, PSTR("BAND A"));
-  TV.printPGM(10, 3 + compute_position(BAND_B_POS) * MENU_Y_SIZE, PSTR("CUSTOM"));
+  TV.printPGM(10, 3 + compute_position(BAND_B_POS) * MENU_Y_SIZE, PSTR("BAND B"));
   TV.printPGM(10, 3 + compute_position(BAND_E_POS) * MENU_Y_SIZE, PSTR("BAND E"));
   TV.printPGM(10, 3 + compute_position(BAND_F_POS) * MENU_Y_SIZE, PSTR("FATSHARK"));
   TV.printPGM(10, 3 + compute_position(BAND_R1_POS) * MENU_Y_SIZE, PSTR("RACEBAND"));
