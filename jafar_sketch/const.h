@@ -39,10 +39,10 @@ This file is part of Fatshark© goggle rx module project (JAFaR).
 #define CH3 4
 
 //calibration stored values
-#define EEPROM_ADR_RSSI_MIN_L 2
-#define EEPROM_ADR_RSSI_MIN_H 3
-#define EEPROM_ADR_RSSI_MAX_L 4
-#define EEPROM_ADR_RSSI_MAX_H 5
+#define EEPROM_ADR_RSSI_MIN_A_L 2
+#define EEPROM_ADR_RSSI_MIN_A_H 3
+#define EEPROM_ADR_RSSI_MAX_A_L 4
+#define EEPROM_ADR_RSSI_MAX_A_H 5
 
 #define EEPROM_ADR_RSSI_MIN_B_L 6
 #define EEPROM_ADR_RSSI_MIN_B_H 7

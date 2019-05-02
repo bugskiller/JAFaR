@@ -165,8 +165,8 @@ void RX5808::init(bool isChanB) {
 
   if (!isChanB)
   {
-    rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_L)));
-    rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_L)));
+    rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_A_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_A_L)));
+    rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_A_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_A_L)));
   }
   else
   {
@@ -259,14 +259,14 @@ void RX5808::calibrate(bool isChanB) {
   if (!isChanB)
   {
     // save 16 bit
-    EEPROM.write(EEPROM_ADR_RSSI_MIN_L, (rssi_setup_min & 0xff));
-    EEPROM.write(EEPROM_ADR_RSSI_MIN_H, (rssi_setup_min >> 8));
+    EEPROM.write(EEPROM_ADR_RSSI_MIN_A_L, (rssi_setup_min & 0xff));
+    EEPROM.write(EEPROM_ADR_RSSI_MIN_A_H, (rssi_setup_min >> 8));
     // save 16 bit
-    EEPROM.write(EEPROM_ADR_RSSI_MAX_L, (rssi_setup_max & 0xff));
-    EEPROM.write(EEPROM_ADR_RSSI_MAX_H, (rssi_setup_max >> 8));
+    EEPROM.write(EEPROM_ADR_RSSI_MAX_A_L, (rssi_setup_max & 0xff));
+    EEPROM.write(EEPROM_ADR_RSSI_MAX_A_H, (rssi_setup_max >> 8));
   
-    rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_L)));
-    rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_L)));
+    rssi_min = ((EEPROM.read(EEPROM_ADR_RSSI_MIN_A_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MIN_A_L)));
+    rssi_max = ((EEPROM.read(EEPROM_ADR_RSSI_MAX_A_H) << 8) | (EEPROM.read(EEPROM_ADR_RSSI_MAX_A_L)));
   }
   else
   {
