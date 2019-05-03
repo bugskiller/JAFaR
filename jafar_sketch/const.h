@@ -22,6 +22,19 @@ This file is part of Fatshark© goggle rx module project (JAFaR).
 
 #define USE_DIVERSITY
 
+#ifdef USE_DIVERSITY
+
+// How long (ms) the RSSI strength has to have a greater difference than the
+// above before switching.
+#define DIVERSITY_HYSTERESIS_PERIOD   5 // 5 ms
+
+#endif // USE_DIVERSITY
+
+// RSSI strength should be greater than the value below (percent) over the
+// other receiver before we switch. This pervents flicker when RSSI values
+// are close and delays diversity checks counter.
+#define RSSI_STABLE_PERIOD            25 // 25 ms
+
 
 #define CHANNEL_MIN 0
 #define NUM_BANDS   5
@@ -76,7 +89,7 @@ This file is part of Fatshark© goggle rx module project (JAFaR).
 #define SELECT_A {digitalWrite(SW_CTRL1, LOW);digitalWrite(SW_CTRL1, LOW);digitalWrite(SW_CTRL1, LOW);  digitalWrite(SW_CTRL2, HIGH);}
 #define SELECT_B {digitalWrite(SW_CTRL2, LOW);digitalWrite(SW_CTRL1, LOW);digitalWrite(SW_CTRL1, LOW);  digitalWrite(SW_CTRL1, HIGH);}
 
-#define RX_HYST 0 //~10%
+#define DIVERSITY_HYSTERESIS 2
 
 // Channels with their Mhz Values
 const uint16_t channelFreqTable[] PROGMEM = {

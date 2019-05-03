@@ -19,7 +19,6 @@
 
 #include <EEPROM.h>
 #include "rx5808.h"
-#define RSSI_THRESH (scanVec[getMaxPos()] - 5) //strong channels are near to the global max
 
 RX5808::RX5808(uint8_t RSSIpin, uint8_t CSpin) {
   _rssiPin = RSSIpin;
