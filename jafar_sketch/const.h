@@ -21,17 +21,14 @@ This file is part of Fatshark© goggle rx module project (JAFaR).
 #define const_h
 
 #define USE_DIVERSITY
-#define DISABLE_FILTERING
 
 
 #define CHANNEL_MIN 0
-#define NUM_BANDS 5
+#define NUM_BANDS   5
 #define CHANNEL_MAX 40
 
 
 #define LOOPTIME 1000
-
-#define JAFARE_DEBOUCE_TIME 180
 
 #define TIMER_INIT_VALUE 3.0
 #define CH1 2
@@ -76,8 +73,8 @@ This file is part of Fatshark© goggle rx module project (JAFaR).
 #define SW_CTRL2 6
 
 #define SELECT_OSD { digitalWrite(SW_CTRL1, HIGH); digitalWrite(SW_CTRL2, HIGH); }
-#define SELECT_A { digitalWrite(SW_CTRL1, LOW); digitalWrite(SW_CTRL2, HIGH); }
-#define SELECT_B { digitalWrite(SW_CTRL2, LOW); digitalWrite(SW_CTRL1, HIGH); }
+#define SELECT_A {digitalWrite(SW_CTRL1, LOW);digitalWrite(SW_CTRL1, LOW);digitalWrite(SW_CTRL1, LOW);  digitalWrite(SW_CTRL2, HIGH);}
+#define SELECT_B {digitalWrite(SW_CTRL2, LOW);digitalWrite(SW_CTRL1, LOW);digitalWrite(SW_CTRL1, LOW);  digitalWrite(SW_CTRL1, HIGH);}
 
 #define RX_HYST 0 //~10%
 
